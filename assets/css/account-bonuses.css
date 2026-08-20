@@ -1,0 +1,26 @@
+.ms-bonus-account {
+	margin-top: 1rem;
+}
+
+.ms-bonus-account__balance {
+	font-size: 1.75rem;
+	font-weight: 700;
+	line-height: 1.3;
+	margin: 0 0 0.75rem;
+}
+
+.ms-bonus-account__hint {
+	color: #50575e;
+	font-size: 0.95rem;
+	margin: 0;
+}
+
+.ms-bonus-account__message {
+	font-size: 1.05rem;
+	margin: 0;
+}
+
+.ms-bonus-account--empty .ms-bonus-account__message,
+.ms-bonus-account--error .ms-bonus-account__message {
+	color: #50575e;
+}

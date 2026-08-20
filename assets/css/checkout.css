@@ -1,0 +1,25 @@
+.ms-bonus-checkout {
+	border: 1px solid #dcdcdc;
+	border-radius: 4px;
+	margin: 0 0 1.5rem;
+	padding: 1rem 1.25rem;
+}
+
+.ms-bonus-checkout h3 {
+	font-size: 1.1rem;
+	margin: 0 0 0.75rem;
+}
+
+.ms-bonus-checkout__balance {
+	color: #50575e;
+	margin: 0 0 0.75rem;
+}
+
+.ms-bonus-checkout__toggle label,
+.ms-bonus-checkout__amount label {
+	font-weight: 600;
+}
+
+.ms-bonus-checkout__amount input[type='number'] {
+	max-width: 160px;
+}

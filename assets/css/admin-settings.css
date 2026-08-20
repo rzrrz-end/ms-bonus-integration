@@ -1,0 +1,25 @@
+.ms-bonus-test-result {
+	margin-top: 10px;
+}
+
+.ms-bonus-test-result.is-success {
+	color: #007017;
+}
+
+.ms-bonus-test-result.is-error {
+	color: #b32d2e;
+}
+
+.ms-bonus-program-info {
+	margin-top: 4px;
+}
+
+.ms-bonus-program-table {
+	max-width: 520px;
+	margin-top: 8px;
+}
+
+.ms-bonus-program-table th {
+	width: 65%;
+	font-weight: 600;
+}
