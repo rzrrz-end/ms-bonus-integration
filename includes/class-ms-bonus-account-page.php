@@ -1,23 +1,15 @@
 <?php
-/**
- * WooCommerce My Account bonuses endpoint.
- *
- * @package MS_Bonus_Integration
- */
+
 
 defined( 'ABSPATH' ) || exit;
 
-/**
- * Class MS_Bonus_Account_Page
- */
+
 class MS_Bonus_Account_Page {
 
 	const ENDPOINT             = 'bonuses';
 	const WOOMS_AGENT_META_KEY = 'agent_uuid';
 
-	/**
-	 * Init hooks.
-	 */
+
 	public static function init() {
 		add_action( 'init', array( __CLASS__, 'add_endpoint' ) );
 		add_filter( 'woocommerce_account_menu_items', array( __CLASS__, 'add_menu_item' ) );
@@ -25,19 +17,12 @@ class MS_Bonus_Account_Page {
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ) );
 	}
 
-	/**
-	 * Register rewrite endpoint.
-	 */
+	
 	public static function add_endpoint() {
 		add_rewrite_endpoint( self::ENDPOINT, EP_ROOT | EP_PAGES );
 	}
 
-	/**
-	 * Add menu item to My Account navigation.
-	 *
-	 * @param array<string, string> $items Menu items.
-	 * @return array<string, string>
-	 */
+
 	public static function add_menu_item( $items ) {
 		$new_items = array();
 
@@ -56,9 +41,7 @@ class MS_Bonus_Account_Page {
 		return $new_items;
 	}
 
-	/**
-	 * Enqueue frontend styles on bonuses page.
-	 */
+
 	public static function enqueue_assets() {
 		if ( ! is_account_page() || ! is_wc_endpoint_url( self::ENDPOINT ) ) {
 			return;
@@ -72,9 +55,7 @@ class MS_Bonus_Account_Page {
 		);
 	}
 
-	/**
-	 * Render bonuses endpoint content.
-	 */
+
 	public static function render_endpoint() {
 		$user_id = get_current_user_id();
 
@@ -118,7 +99,6 @@ class MS_Bonus_Account_Page {
 		echo '<div class="ms-bonus-account">';
 		echo '<p class="ms-bonus-account__balance">';
 		printf(
-			/* translators: %d: bonus points balance */
 			esc_html__( 'Ваш бонусный баланс: %d баллов', 'ms-bonus-integration' ),
 			(int) $balance
 		);
@@ -135,15 +115,7 @@ class MS_Bonus_Account_Page {
 		echo '</div>';
 	}
 
-	/**
-	 * Get MoySklad counterparty UUID linked to the user via WooMS order meta.
-	 *
-	 * WooMS stores counterparty ID in order meta key "agent_uuid"
-	 * (see WooMS\Orders::save_uuid_agent_to_order).
-	 *
-	 * @param int $user_id WordPress user ID.
-	 * @return string Counterparty UUID or empty string.
-	 */
+
 	public static function get_user_counterparty_id( $user_id ) {
 		$user_id = absint( $user_id );
 
@@ -172,25 +144,14 @@ class MS_Bonus_Account_Page {
 		return '';
 	}
 
-	/**
-	 * Get user bonus balance (delegates to MS_Bonus_API cache layers).
-	 *
-	 * @param int    $user_id         WordPress user ID.
-	 * @param string $counterparty_id MoySklad counterparty UUID.
-	 * @param int    $timeout         API request timeout in seconds.
-	 * @return int|WP_Error
-	 */
+
 	public static function get_cached_user_balance( $user_id, $counterparty_id, $timeout = MS_Bonus_API::DEFAULT_TIMEOUT ) {
 		unset( $user_id );
 
 		return MS_Bonus_API::get_counterparty_balance( $counterparty_id, $timeout );
 	}
 
-	/**
-	 * Build dynamic hint about point-to-ruble rate from bonus program settings.
-	 *
-	 * @return string
-	 */
+
 	private static function get_point_rate_hint() {
 		$program = MS_Bonus_API::get_bonus_program();
 
@@ -218,7 +179,7 @@ class MS_Bonus_Account_Page {
 		$formatted_rate = wc_format_decimal( $rate, wc_get_price_decimals(), true );
 
 		return sprintf(
-			/* translators: %s: ruble value of one bonus point */
+	
 			__( '1 балл = %s руб.', 'ms-bonus-integration' ),
 			$formatted_rate
 		);
