@@ -1,30 +1,17 @@
 <?php
-/**
- * Welcome bonus: 1000 points 10 days after user registration.
- *
- * @package MS_Bonus_Integration
- */
 
 defined( 'ABSPATH' ) || exit;
 
-/**
- * Class MS_Bonus_Welcome
- */
+
 class MS_Bonus_Welcome {
 
-	/**
-	 * Init hooks.
-	 */
+
 	public static function init() {
 		add_action( 'user_register', array( __CLASS__, 'schedule_welcome_bonus' ), 20, 1 );
 		add_action( MS_Bonus_Helpers::CRON_WELCOME_HOOK, array( __CLASS__, 'process_welcome_bonus' ), 10, 1 );
 	}
 
-	/**
-	 * Schedule welcome bonus 10 days after registration.
-	 *
-	 * @param int $user_id Newly registered user ID.
-	 */
+
 	public static function schedule_welcome_bonus( $user_id ) {
 		$user_id = absint( $user_id );
 
@@ -48,11 +35,6 @@ class MS_Bonus_Welcome {
 		wp_schedule_single_event( $timestamp, $hook, $args );
 	}
 
-	/**
-	 * Cron: credit welcome bonus via MoySklad API.
-	 *
-	 * @param int $user_id WordPress user ID.
-	 */
 	public static function process_welcome_bonus( $user_id ) {
 		$user_id = absint( $user_id );
 
@@ -114,12 +96,7 @@ class MS_Bonus_Welcome {
 		);
 	}
 
-	/**
-	 * Reschedule welcome bonus retry for next day (until max retries).
-	 *
-	 * @param int    $user_id WordPress user ID.
-	 * @param string $reason  Log reason.
-	 */
+
 	private static function reschedule_retry( $user_id, $reason ) {
 		$retries = (int) get_user_meta( $user_id, MS_Bonus_Helpers::META_WELCOME_RETRIES, true );
 
