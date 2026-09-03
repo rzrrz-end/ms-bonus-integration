@@ -1,20 +1,11 @@
 <?php
-/**
- * Checkout bonus spending UI and cart fee calculation.
- *
- * @package MS_Bonus_Integration
- */
 
 defined( 'ABSPATH' ) || exit;
 
-/**
- * Class MS_Bonus_Checkout
- */
+
 class MS_Bonus_Checkout {
 
-	/**
-	 * Init hooks.
-	 */
+
 	public static function init() {
 		add_action( 'woocommerce_review_order_before_payment', array( __CLASS__, 'render_checkout_fields' ) );
 		add_action( 'woocommerce_checkout_update_order_review', array( __CLASS__, 'update_session_from_post' ) );
@@ -26,9 +17,7 @@ class MS_Bonus_Checkout {
 		add_filter( 'woocommerce_cart_totals_fee_html', array( __CLASS__, 'filter_fee_label' ), 10, 2 );
 	}
 
-	/**
-	 * Enqueue checkout scripts.
-	 */
+
 	public static function enqueue_assets() {
 		if ( ! is_checkout() || is_order_received_page() ) {
 			return;
@@ -50,9 +39,7 @@ class MS_Bonus_Checkout {
 		);
 	}
 
-	/**
-	 * Clear bonus session values.
-	 */
+
 	private static function reset_session() {
 		if ( ! WC()->session ) {
 			return;
@@ -62,11 +49,7 @@ class MS_Bonus_Checkout {
 		WC()->session->set( 'ms_bonus_points', 0 );
 	}
 
-	/**
-	 * Render bonus spending fields on checkout.
-	 *
-	 * Hidden entirely when a coupon is applied or spending is unavailable.
-	 */
+
 	public static function render_checkout_fields() {
 		$user_id = get_current_user_id();
 		if ( ! $user_id || ! WC()->session ) {
@@ -94,7 +77,6 @@ class MS_Bonus_Checkout {
 			<p class="form-row ms-bonus-checkout__balance">
 				<?php
 				printf(
-					/* translators: 1: available balance, 2: max spendable points, 3: spend limit percent */
 					esc_html__( 'Доступно: %1$d баллов. Максимум к списанию в этом заказе: %2$d баллов (не более %3$s%% суммы).', 'ms-bonus-integration' ),
 					(int) $limits['balance'],
 					(int) $limits['max_points'],
@@ -137,11 +119,7 @@ class MS_Bonus_Checkout {
 		<?php
 	}
 
-	/**
-	 * Persist checkout input in session for cart recalculation.
-	 *
-	 * @param string $post_data Serialized checkout form data.
-	 */
+
 	public static function update_session_from_post( $post_data ) {
 		if ( ! WC()->session ) {
 			return;
@@ -175,11 +153,6 @@ class MS_Bonus_Checkout {
 		WC()->session->set( 'ms_bonus_points', $apply ? $points : 0 );
 	}
 
-	/**
-	 * Apply negative cart fee for selected bonus points.
-	 *
-	 * @param WC_Cart $cart Cart object.
-	 */
 	public static function apply_bonus_fee( $cart ) {
 		if ( is_admin() && ! defined( 'DOING_AJAX' ) ) {
 			return;
@@ -223,12 +196,7 @@ class MS_Bonus_Checkout {
 		);
 	}
 
-	/**
-	 * Save requested bonus amount on order creation.
-	 *
-	 * @param WC_Order $order Order object.
-	 * @param array    $data  Checkout posted data.
-	 */
+
 	public static function save_bonus_meta( $order, $data ) {
 		unset( $data );
 
@@ -262,12 +230,7 @@ class MS_Bonus_Checkout {
 		$order->update_meta_data( MS_Bonus_Helpers::META_REQUESTED, $points );
 	}
 
-	/**
-	 * Validate bonus input during checkout.
-	 *
-	 * @param array    $data   Posted data.
-	 * @param WP_Error $errors Validation errors.
-	 */
+
 	public static function validate_bonus_input( $data, $errors ) {
 		unset( $data );
 
@@ -275,8 +238,8 @@ class MS_Bonus_Checkout {
 			return;
 		}
 
-		$apply  = ! empty( $_POST['ms_bonus_apply'] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
-		$points = isset( $_POST['ms_bonus_points'] ) ? absint( wp_unslash( $_POST['ms_bonus_points'] ) ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$apply  = ! empty( $_POST['ms_bonus_apply'] ); 
+		$points = isset( $_POST['ms_bonus_points'] ) ? absint( wp_unslash( $_POST['ms_bonus_points'] ) ) : 0; 
 
 		if ( MS_Bonus_Helpers::cart_has_coupon() ) {
 			self::reset_session();
@@ -310,7 +273,6 @@ class MS_Bonus_Checkout {
 			$errors->add(
 				'ms_bonus_too_many',
 				sprintf(
-					/* translators: %d: maximum allowed bonus points */
 					__( 'Можно списать не более %d баллов (лимит 20%% суммы заказа).', 'ms-bonus-integration' ),
 					(int) $limits['max_points']
 				)
@@ -318,13 +280,7 @@ class MS_Bonus_Checkout {
 		}
 	}
 
-	/**
-	 * Display human-readable fee label in cart totals.
-	 *
-	 * @param string $html Fee label HTML.
-	 * @param object $fee  Fee object.
-	 * @return string
-	 */
+
 	public static function filter_fee_label( $html, $fee ) {
 		if ( isset( $fee->name ) && MS_Bonus_Helpers::FEE_CART_NAME === $fee->name ) {
 			return esc_html__( 'Списание бонусов', 'ms-bonus-integration' );
@@ -332,12 +288,6 @@ class MS_Bonus_Checkout {
 
 		return $html;
 	}
-
-	/**
-	 * Clear session values after order is placed.
-	 *
-	 * @param int $order_id Order ID.
-	 */
 	public static function clear_session( $order_id ) {
 		unset( $order_id );
 		self::reset_session();
