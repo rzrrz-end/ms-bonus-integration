@@ -58,14 +58,14 @@
 		}
 	} );
 
-	// Coupon applied/removed via AJAX — reset bonus and refresh checkout fragments.
+
 	$( document.body ).on( 'applied_coupon_in_checkout removed_coupon_in_checkout', function () {
 		clearBonusFields();
 		triggerCheckoutUpdate();
 	} );
 
 	$( document.body ).on( 'updated_checkout', function () {
-		// Block removed from markup when a coupon is active — keep session cleared on next update.
+
 		if ( ! $( '#ms-bonus-checkout' ).length ) {
 			clearBonusFields();
 			return;
