@@ -1,31 +1,16 @@
 <?php
-/**
- * Bonus spending after WooMS order sync.
- *
- * @package MS_Bonus_Integration
- */
+
 
 defined( 'ABSPATH' ) || exit;
 
-/**
- * Class MS_Bonus_Order_Sync
- */
+
 class MS_Bonus_Order_Sync {
 
-	/**
-	 * Init hooks.
-	 */
+
 	public static function init() {
 		add_filter( 'wooms_order_update', 'ms_bonus_handle_order_synced', 20, 2 );
 	}
 
-	/**
-	 * Handle bonus spending after WooMS syncs order to MoySklad.
-	 *
-	 * @param WC_Order             $order  WooCommerce order.
-	 * @param array<string, mixed> $result MoySklad customerorder response.
-	 * @return WC_Order
-	 */
 	public static function handle_order_synced( $order, $result ) {
 		if ( ! is_a( $order, 'WC_Order' ) || empty( $result ) || ! is_array( $result ) ) {
 			return $order;
@@ -98,12 +83,7 @@ class MS_Bonus_Order_Sync {
 		return $order;
 	}
 
-	/**
-	 * Store sync error meta and log message.
-	 *
-	 * @param WC_Order $order   Order object.
-	 * @param string   $message Error message.
-	 */
+
 	private static function mark_error( $order, $message ) {
 		$order->update_meta_data( MS_Bonus_Helpers::META_ERROR, $message );
 		$order->update_meta_data( MS_Bonus_Helpers::META_PROCESSED, 1 );
@@ -111,13 +91,7 @@ class MS_Bonus_Order_Sync {
 	}
 }
 
-/**
- * Filter callback for wooms_order_update.
- *
- * @param WC_Order             $order  WooCommerce order.
- * @param array<string, mixed> $result MoySklad response.
- * @return WC_Order
- */
+
 function ms_bonus_handle_order_synced( $order, $result ) {
 	return MS_Bonus_Order_Sync::handle_order_synced( $order, $result );
 }
