@@ -1,9 +1,5 @@
 <?php
-/**
- * WooCommerce settings page for MS Bonus Integration.
- *
- * @package MS_Bonus_Integration
- */
+
 
 defined( 'ABSPATH' ) || exit;
 
@@ -11,14 +7,10 @@ if ( ! class_exists( 'WC_Settings_Page', false ) ) {
 	include_once WC_ABSPATH . 'includes/admin/settings/class-wc-settings-page.php';
 }
 
-/**
- * Class MS_Bonus_Settings
- */
+
 class MS_Bonus_Settings extends WC_Settings_Page {
 
-	/**
-	 * Init hooks.
-	 */
+
 	public static function init() {
 		add_filter( 'woocommerce_get_settings_pages', array( __CLASS__, 'register_settings_page' ) );
 		add_filter( 'pre_option_ms_bonus_bonus_program_id', array( __CLASS__, 'filter_bonus_program_id_option' ) );
@@ -29,12 +21,7 @@ class MS_Bonus_Settings extends WC_Settings_Page {
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_admin_assets' ) );
 	}
 
-	/**
-	 * Provide bonus program ID to WooCommerce settings field renderer.
-	 *
-	 * @param mixed $value Stored option value.
-	 * @return string
-	 */
+
 	public static function filter_bonus_program_id_option( $value ) {
 		if ( false !== $value ) {
 			return $value;
@@ -43,12 +30,6 @@ class MS_Bonus_Settings extends WC_Settings_Page {
 		return ms_bonus_get_settings()['bonus_program_id'];
 	}
 
-	/**
-	 * Provide order status to WooCommerce settings field renderer.
-	 *
-	 * @param mixed $value Stored option value.
-	 * @return string
-	 */
 	public static function filter_order_status_option( $value ) {
 		if ( false !== $value ) {
 			return $value;
@@ -57,20 +38,13 @@ class MS_Bonus_Settings extends WC_Settings_Page {
 		return ms_bonus_get_settings()['order_status'];
 	}
 
-	/**
-	 * Register settings page instance.
-	 *
-	 * @param WC_Settings_Page[] $settings Existing settings pages.
-	 * @return WC_Settings_Page[]
-	 */
+
 	public static function register_settings_page( $settings ) {
 		$settings[] = new self();
 		return $settings;
 	}
 
-	/**
-	 * Constructor.
-	 */
+
 	public function __construct() {
 		$this->id    = 'ms_bonus';
 		$this->label = __( 'Бонусы МойСклад', 'ms-bonus-integration' );
@@ -78,22 +52,13 @@ class MS_Bonus_Settings extends WC_Settings_Page {
 		parent::__construct();
 	}
 
-	/**
-	 * Settings sections.
-	 *
-	 * @return array<int, array<string, string>>
-	 */
 	public function get_sections() {
 		return array(
 			'' => __( 'Основные настройки', 'ms-bonus-integration' ),
 		);
 	}
 
-	/**
-	 * Settings fields.
-	 *
-	 * @return array<int, array<string, mixed>>
-	 */
+
 	public function get_settings() {
 		$settings = ms_bonus_get_settings();
 
@@ -144,9 +109,7 @@ class MS_Bonus_Settings extends WC_Settings_Page {
 		);
 	}
 
-	/**
-	 * Save settings into ms_bonus_settings option.
-	 */
+
 	public function save() {
 		$bonus_program_id = isset( $_POST['ms_bonus_bonus_program_id'] )
 			? sanitize_text_field( wp_unslash( $_POST['ms_bonus_bonus_program_id'] ) )
@@ -176,11 +139,7 @@ class MS_Bonus_Settings extends WC_Settings_Page {
 		}
 	}
 
-	/**
-	 * Render test connection button field.
-	 *
-	 * @param array<string, mixed> $value Field config.
-	 */
+
 	public static function render_test_connection_field( $value ) {
 		?>
 		<tr valign="top">
@@ -200,11 +159,7 @@ class MS_Bonus_Settings extends WC_Settings_Page {
 		<?php
 	}
 
-	/**
-	 * Render placeholder for bonus program info block.
-	 *
-	 * @param array<string, mixed> $value Field config.
-	 */
+
 	public static function render_program_info_field( $value ) {
 		?>
 		<tr valign="top">
@@ -222,17 +177,12 @@ class MS_Bonus_Settings extends WC_Settings_Page {
 		<?php
 	}
 
-	/**
-	 * Enqueue admin assets on plugin settings page only.
-	 *
-	 * @param string $hook_suffix Current admin page hook.
-	 */
+
 	public static function enqueue_admin_assets( $hook_suffix ) {
 		if ( 'woocommerce_page_wc-settings' !== $hook_suffix ) {
 			return;
 		}
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( ! isset( $_GET['tab'] ) || 'ms_bonus' !== sanitize_text_field( wp_unslash( $_GET['tab'] ) ) ) {
 			return;
 		}
@@ -274,9 +224,7 @@ class MS_Bonus_Settings extends WC_Settings_Page {
 		);
 	}
 
-	/**
-	 * AJAX: test bonus program connection.
-	 */
+
 	public static function ajax_test_connection() {
 		check_ajax_referer( 'ms_bonus_test_connection', 'nonce' );
 
