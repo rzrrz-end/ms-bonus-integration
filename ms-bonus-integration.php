@@ -1,14 +1,5 @@
 <?php
-/**
- * Plugin Name: MS Bonus Integration
- * Description: Интеграция бонусной программы МойСклад с WooCommerce. Использует учётные данные WooMS.
- * Version: 1.3.0
- * Author: MS Bonus Integration
- * Requires at least: 6.0
- * Requires PHP: 7.4
- * Text Domain: ms-bonus-integration
- * WC requires at least: 8.0
- */
+
 
 defined( 'ABSPATH' ) || exit;
 
@@ -46,11 +37,7 @@ register_deactivation_hook(
 	}
 );
 
-/**
- * Default plugin settings.
- *
- * @return array<string, string>
- */
+
 function ms_bonus_default_settings() {
 	return array(
 		'bonus_program_id' => '',
@@ -58,11 +45,7 @@ function ms_bonus_default_settings() {
 	);
 }
 
-/**
- * Get merged plugin settings.
- *
- * @return array<string, string>
- */
+
 function ms_bonus_get_settings() {
 	$stored = get_option( 'ms_bonus_settings', array() );
 
@@ -73,9 +56,7 @@ function ms_bonus_get_settings() {
 	return wp_parse_args( $stored, ms_bonus_default_settings() );
 }
 
-/**
- * Bootstrap plugin after WooCommerce is loaded.
- */
+
 function ms_bonus_integration_init() {
 	if ( ! class_exists( 'WooCommerce' ) ) {
 		add_action(
