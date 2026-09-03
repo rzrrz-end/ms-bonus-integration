@@ -1,15 +1,8 @@
 <?php
-/**
- * MoySklad Bonus API client.
- *
- * @package MS_Bonus_Integration
- */
 
 defined( 'ABSPATH' ) || exit;
 
-/**
- * Class MS_Bonus_API
- */
+
 class MS_Bonus_API {
 
 	const API_BASE                = 'https://api.moysklad.ru/api/remap/1.2/';
@@ -22,25 +15,13 @@ class MS_Bonus_API {
 	const DEFAULT_TIMEOUT         = 45;
 	const DEFAULT_RETRY_SECONDS   = 3;
 
-	/**
-	 * In-request cache for bonus program data keyed by program UUID.
-	 *
-	 * @var array<string, array|WP_Error>
-	 */
+
 	private static $runtime_program_cache = array();
 
-	/**
-	 * In-request cache for counterparty balances keyed by counterparty UUID.
-	 *
-	 * @var array<string, int|WP_Error>
-	 */
+
 	private static $runtime_balance_cache = array();
 
-	/**
-	 * Get MoySklad credentials from WooMS settings.
-	 *
-	 * @return array{login: string, password: string}|WP_Error
-	 */
+
 	public static function get_credentials() {
 		$login    = (string) get_option( self::CREDENTIAL_OPTION_LOGIN, '' );
 		$password = (string) get_option( self::CREDENTIAL_OPTION_PASS, '' );
@@ -58,14 +39,7 @@ class MS_Bonus_API {
 		);
 	}
 
-	/**
-	 * Get bonus program settings with transient and in-request cache.
-	 *
-	 * @param string|null $bonus_program_id Optional program UUID. Uses plugin settings by default.
-	 * @param bool        $force_refresh    Skip persistent cache when true.
-	 * @param int         $timeout          Request timeout in seconds.
-	 * @return array{earnRateRoublesToPoint: int|float|null, spendRatePointsToRouble: int|float|null, maxPaidRatePercents: int|float|null, earnWhileRedeeming: bool|null}|WP_Error
-	 */
+
 	public static function get_bonus_program( $bonus_program_id = null, $force_refresh = false, $timeout = self::DEFAULT_TIMEOUT ) {
 		$settings         = ms_bonus_get_settings();
 		$bonus_program_id = $bonus_program_id ?: $settings['bonus_program_id'];
@@ -127,13 +101,7 @@ class MS_Bonus_API {
 		return $data;
 	}
 
-	/**
-	 * Get counterparty bonus balance with transient and in-request cache.
-	 *
-	 * @param string $counterparty_id Counterparty UUID.
-	 * @param int    $timeout         Request timeout in seconds.
-	 * @return int|WP_Error
-	 */
+
 	public static function get_counterparty_balance( $counterparty_id, $timeout = self::DEFAULT_TIMEOUT ) {
 		if ( empty( $counterparty_id ) ) {
 			return new WP_Error(
@@ -193,11 +161,7 @@ class MS_Bonus_API {
 		return $balance;
 	}
 
-	/**
-	 * Clear persistent and in-request balance cache for counterparty.
-	 *
-	 * @param string $counterparty_id Counterparty UUID.
-	 */
+
 	public static function clear_counterparty_balance_cache( $counterparty_id ) {
 		if ( empty( $counterparty_id ) ) {
 			return;
@@ -207,11 +171,6 @@ class MS_Bonus_API {
 		self::clear_runtime_balance_cache( $counterparty_id );
 	}
 
-	/**
-	 * Clear in-request bonus program cache.
-	 *
-	 * @param string|null $bonus_program_id Optional program UUID.
-	 */
 	public static function clear_runtime_program_cache( $bonus_program_id = null ) {
 		if ( null === $bonus_program_id ) {
 			self::$runtime_program_cache = array();
@@ -225,11 +184,7 @@ class MS_Bonus_API {
 		}
 	}
 
-	/**
-	 * Clear in-request counterparty balance cache.
-	 *
-	 * @param string|null $counterparty_id Optional counterparty UUID.
-	 */
+
 	public static function clear_runtime_balance_cache( $counterparty_id = null ) {
 		if ( null === $counterparty_id ) {
 			self::$runtime_balance_cache = array();
@@ -243,15 +198,7 @@ class MS_Bonus_API {
 		}
 	}
 
-	/**
-	 * Create bonus transaction (EARNING or SPENDING).
-	 *
-	 * @param string $counterparty_id  Counterparty UUID.
-	 * @param string $bonus_program_id Bonus program UUID.
-	 * @param int    $amount           Bonus points amount.
-	 * @param string $type             EARNING or SPENDING.
-	 * @return array|WP_Error
-	 */
+
 	public static function create_bonus_transaction( $counterparty_id, $bonus_program_id, $amount, $type ) {
 		$counterparty_id  = sanitize_text_field( $counterparty_id );
 		$bonus_program_id = sanitize_text_field( $bonus_program_id );
@@ -309,15 +256,6 @@ class MS_Bonus_API {
 		return $response;
 	}
 
-	/**
-	 * Perform HTTP request to MoySklad API.
-	 *
-	 * @param string               $path    API path or full URL.
-	 * @param array<string, mixed> $data    Request body.
-	 * @param string               $method  HTTP method.
-	 * @param int                  $timeout Request timeout in seconds.
-	 * @return array<string, mixed>|WP_Error
-	 */
 	private static function request( $path, $data = array(), $method = 'GET', $timeout = self::DEFAULT_TIMEOUT ) {
 		$credentials = self::get_credentials();
 
@@ -355,16 +293,6 @@ class MS_Bonus_API {
 		return self::perform_http_request( $url, $args, $path, $method, false );
 	}
 
-	/**
-	 * Execute HTTP request with optional single retry on HTTP 429.
-	 *
-	 * @param string $url      Request URL.
-	 * @param array  $args     wp_remote_request args.
-	 * @param string $path     Original API path for logging.
-	 * @param string $method   HTTP method.
-	 * @param bool   $is_retry Whether this is the retry attempt.
-	 * @return array<string, mixed>|WP_Error
-	 */
 	private static function perform_http_request( $url, $args, $path, $method, $is_retry ) {
 		self::log_api_request( $path, $method, $is_retry );
 
@@ -431,12 +359,7 @@ class MS_Bonus_API {
 		return $decoded;
 	}
 
-	/**
-	 * Parse retry interval from MoySklad rate-limit response headers.
-	 *
-	 * @param array|WP_Error $response HTTP response.
-	 * @return float Seconds to wait before retry.
-	 */
+
 	private static function get_retry_interval_seconds( $response ) {
 		$header = wp_remote_retrieve_header( $response, 'x-lognex-retry-timeinterval' );
 
@@ -446,7 +369,6 @@ class MS_Bonus_API {
 
 		$value = (float) $header;
 
-		// Header is usually milliseconds; values above 1000 are treated as ms.
 		if ( $value > 1000 ) {
 			return max( 1.0, $value / 1000 );
 		}
@@ -454,13 +376,7 @@ class MS_Bonus_API {
 		return max( 1.0, $value );
 	}
 
-	/**
-	 * Log real (non-cache) HTTP request to error_log.
-	 *
-	 * @param string $path     API path.
-	 * @param string $method   HTTP method.
-	 * @param bool   $is_retry Whether this is a retry attempt.
-	 */
+
 	private static function log_api_request( $path, $method, $is_retry ) {
 		$suffix = $is_retry ? ' [retry]' : '';
 
@@ -475,23 +391,11 @@ class MS_Bonus_API {
 		);
 	}
 
-	/**
-	 * Build transient key for counterparty balance cache.
-	 *
-	 * @param string $counterparty_id Counterparty UUID.
-	 * @return string
-	 */
 	private static function get_balance_transient_key( $counterparty_id ) {
 		return self::BALANCE_CACHE_PREFIX . md5( $counterparty_id );
 	}
 
-	/**
-	 * Build entity meta reference for MoySklad API.
-	 *
-	 * @param string $type Entity type slug.
-	 * @param string $id   Entity UUID.
-	 * @return array<string, string>
-	 */
+
 	private static function entity_meta( $type, $id ) {
 		return array(
 			'href'      => self::API_BASE . 'entity/' . $type . '/' . $id,
@@ -500,12 +404,7 @@ class MS_Bonus_API {
 		);
 	}
 
-	/**
-	 * Extract first error message from MoySklad response.
-	 *
-	 * @param array<string, mixed> $response API response.
-	 * @return string
-	 */
+
 	private static function extract_error_message( $response ) {
 		if ( empty( $response['errors'] ) || ! is_array( $response['errors'] ) ) {
 			return '';
