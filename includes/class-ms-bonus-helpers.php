@@ -1,15 +1,8 @@
 <?php
-/**
- * Shared helpers for MS Bonus Integration.
- *
- * @package MS_Bonus_Integration
- */
 
 defined( 'ABSPATH' ) || exit;
 
-/**
- * Class MS_Bonus_Helpers
- */
+
 class MS_Bonus_Helpers {
 
 	const META_REQUESTED      = '_ms_bonus_requested';
@@ -33,33 +26,21 @@ class MS_Bonus_Helpers {
 	const WELCOME_DELAY_DAYS   = 10;
 	const CHECKOUT_API_TIMEOUT = 5;
 
-	/** Order earning rate: 3% of order amount. */
+
 	const EARN_RATE = 0.03;
 
-	/** Unified checkout spend limit: 20% of order total. */
+
 	const SPEND_MAX_PERCENT = 20.0;
 
-	/**
-	 * In-request cache for checkout spend limits keyed by user ID and timeout.
-	 *
-	 * @var array<string, array|null>
-	 */
+
 	private static $spend_limits_cache = array();
 
-	/**
-	 * Write message to PHP error log.
-	 *
-	 * @param string $message Log message.
-	 */
+
 	public static function log_error( $message ) {
 		error_log( '[MS Bonus Integration] ' . $message );
 	}
 
-	/**
-	 * Whether the cart has any WooCommerce coupon applied.
-	 *
-	 * @return bool
-	 */
+
 	public static function cart_has_coupon() {
 		if ( ! WC()->cart ) {
 			return false;
@@ -70,12 +51,6 @@ class MS_Bonus_Helpers {
 		return ! empty( $coupons );
 	}
 
-	/**
-	 * Extract counterparty UUID from MoySklad customerorder response.
-	 *
-	 * @param array<string, mixed> $result API response.
-	 * @return string
-	 */
 	public static function get_agent_id_from_result( $result ) {
 		if ( empty( $result ) || ! is_array( $result ) ) {
 			return '';
@@ -92,13 +67,7 @@ class MS_Bonus_Helpers {
 		return '';
 	}
 
-	/**
-	 * Resolve counterparty ID for an order.
-	 *
-	 * @param WC_Order                  $order  WooCommerce order.
-	 * @param array<string, mixed>|null $result Optional MoySklad response.
-	 * @return string
-	 */
+
 	public static function get_order_counterparty_id( $order, $result = null ) {
 		if ( is_array( $result ) ) {
 			$from_result = self::get_agent_id_from_result( $result );
@@ -120,12 +89,7 @@ class MS_Bonus_Helpers {
 		return '';
 	}
 
-	/**
-	 * Detect first MoySklad sync: wooms_id exists on order object but not yet persisted.
-	 *
-	 * @param WC_Order $order WooCommerce order.
-	 * @return bool
-	 */
+
 	public static function is_first_moysklad_sync( $order ) {
 		foreach ( $order->get_meta_data() as $meta ) {
 			if ( 'wooms_id' === $meta->key && $meta->id ) {
@@ -136,11 +100,7 @@ class MS_Bonus_Helpers {
 		return (bool) $order->get_meta( 'wooms_id', true );
 	}
 
-	/**
-	 * Cart total eligible for bonus payment (before bonus fee).
-	 *
-	 * @return float
-	 */
+
 	public static function get_cart_total_before_bonus() {
 		if ( ! WC()->cart ) {
 			return 0.0;
@@ -162,16 +122,7 @@ class MS_Bonus_Helpers {
 		return max( 0.0, $total );
 	}
 
-	/**
-	 * Calculate maximum spendable bonus points for user.
-	 *
-	 * Unified limit: min( balance, floor( order_total * 20% / spend_rate ) ).
-	 * Unavailable when a coupon is applied.
-	 *
-	 * @param int $user_id WordPress user ID.
-	 * @param int $timeout API request timeout in seconds.
-	 * @return array{balance: int, max_points: int, spend_rate: float, max_percent: float}|null
-	 */
+
 	public static function get_spend_limits_for_user( $user_id, $timeout = MS_Bonus_API::DEFAULT_TIMEOUT ) {
 		$user_id = absint( $user_id );
 
@@ -237,12 +188,7 @@ class MS_Bonus_Helpers {
 		return $limits;
 	}
 
-	/**
-	 * Parse entity UUID from MoySklad meta href.
-	 *
-	 * @param string $href Meta href.
-	 * @return string
-	 */
+
 	private static function extract_uuid_from_href( $href ) {
 		$parts = explode( '/', untrailingslashit( $href ) );
 		$uuid  = end( $parts );
@@ -254,11 +200,6 @@ class MS_Bonus_Helpers {
 		return sanitize_text_field( $uuid );
 	}
 
-	/**
-	 * Clear cached bonus balance for user.
-	 *
-	 * @param int $user_id WordPress user ID.
-	 */
 	public static function clear_balance_cache( $user_id ) {
 		$user_id = absint( $user_id );
 
@@ -272,12 +213,6 @@ class MS_Bonus_Helpers {
 		self::$spend_limits_cache = array();
 	}
 
-	/**
-	 * Order amount used for 3% earning (paid total + bonus fee restored).
-	 *
-	 * @param WC_Order $order Order object.
-	 * @return float
-	 */
 	public static function get_order_amount_for_earning( $order ) {
 		$total = (float) $order->get_total();
 
@@ -290,12 +225,6 @@ class MS_Bonus_Helpers {
 		return max( 0.0, $total );
 	}
 
-	/**
-	 * Calculate earning points: floor( order_amount * 3% ).
-	 *
-	 * @param WC_Order $order Order object.
-	 * @return int
-	 */
 	public static function calculate_earn_points( $order ) {
 		$amount = self::get_order_amount_for_earning( $order );
 
